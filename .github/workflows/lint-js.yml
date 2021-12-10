@@ -1,0 +1,97 @@
+name: Lint JS
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        required: false
+        type: string
+        default: Lint Core JS
+      repository:
+        required: true
+        type: string
+      application_path:
+        required: true
+        type: string
+      packages:
+        required: true
+        type: string
+      timeout_minutes:
+        required: false
+        type: number
+        default: 5
+      ci_repository:
+        required: true
+        type: string
+      report_script:
+        required: true
+        type: string
+    secrets:
+      access_token:
+        required: true
+      slack_bot_token:
+        required: true
+
+jobs:
+  lint-js:
+    name: ${{ inputs.job_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ secrets.access_token }}
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          path: ${{ inputs.repository }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "2.7"
+          architecture: "x64"
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.4"
+      - name: Install node dependencies
+        run: |
+          cd ${{ inputs.repository }}/${{ inputs.application_path }}
+          npm install \
+            ${{ inputs.packages }}
+      - name: Show node environment
+        run: |
+          node --version
+          npm --version
+      - name: Run JS Lint
+        run: |
+          cd ${{ inputs.repository }}/${{ inputs.application_path }}
+          npm run lint-only
+      - name: Generate report
+        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: archive/github-actions-slack@v1.0.3
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.slack_bot_token }}
+          slack-channel: "#ci-status"
+          slack-text: ":red_circle: `${{github.repository}}` - `${{github.job}}` \n
+            *run_id:* `${{github.run_id}}` *run_number:* `${{github.run_number}}` \n
+            *author:* `${{github.actor}}`"
+      - name: Clone CI repository
+        if: failure() && inputs.ci_repository
+        uses: actions/checkout@v2
+        with:
+          repository: lendingfront/${{ inputs.ci_repository }}
+          path: ${{ inputs.ci_repository }}
+          token: ${{ secrets.access_token }}
+      - name: Stop on failure
+        if: failure() && inputs.ci_repository
+        env:
+          LENDINGFRONT_PATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/
+        run: |
+          pip install requests
+          python ${{ inputs.report_script }} \
+            --token=${{ secrets.access_token }} \
+            --repository-path=${{ github.repository }} \
+            --run-id=${{ github.run_id }}
