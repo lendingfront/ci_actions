@@ -35,7 +35,7 @@ on:
         required: true
 
 jobs:
-  format-py:
+  migrations:
     name: Migration Checker
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
