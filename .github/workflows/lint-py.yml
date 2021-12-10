@@ -19,6 +19,15 @@ on:
       repositories_default_branch:
         required: true
         type: string
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
       badges_repository:
         required: true
         type: string
@@ -57,6 +66,13 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ${{ inputs.repository }}
+      - name: Clone CI repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
+          token: ${{ secrets.access_token }}
       - name: Clone repositories
         run: |
           bash ./${{ inputs.clone_repository_script }} ${{ inputs.repositories }} ${{ inputs.repositories_default_branch }} ${{ secrets.access_token }}
