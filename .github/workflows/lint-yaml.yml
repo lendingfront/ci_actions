@@ -1,0 +1,63 @@
+name: Lint Yaml
+
+on:
+  workflow_call:
+    inputs:
+      timeout-minutes:
+        required: false
+        type: number
+        default: 5
+    secrets:
+      access_token:
+        required: true
+      slack_bot_token:
+        required: true
+
+jobs:
+  lint-yaml:
+    name: Lint Yaml
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ secrets.access_token }}
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - name: Install yamllint
+        run: pip install yamllint
+      - name: Lint YAML files
+        run: |
+          yamllint -c .yamllint/yaml-default-config.yaml .
+      - name: Generate report
+        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: archive/github-actions-slack@v1.0.3
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.slack_bot_token }}
+          slack-channel: "#ci-status"
+          slack-text: ":red_circle: `${{github.repository}}` - `${{github.job}}` \n
+            *run_id:* `${{github.run_id}}` *run_number:* `${{github.run_number}}` \n
+            *author:* `${{github.actor}}`"
+      - name: Clone general repository
+        if: failure()
+        uses: actions/checkout@v2
+        with:
+          repository: lendingfront/general
+          ref: staging
+          path: general
+          token: ${{ secrets.access_token }}
+      - name: Stop on failure
+        if: failure()
+        env:
+          LENDINGFRONT_PATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/
+        run: |
+          pip install requests
+          python general/scripts/cancel_ci_jobs.py \
+            --token=${{ secrets.access_token }} \
+            --repository-path=${{ github.repository }} \
+            --run-id=${{ github.run_id }}

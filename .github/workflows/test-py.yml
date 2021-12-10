@@ -163,6 +163,7 @@ jobs:
           PS_LOG_FILE_PATH: log/ps/
           RS_LOG_FILE_PATH: log/rs/
           US_LOG_FILE_PATH: log/us/
+          ACTION_FILE_PATH: app/static/actions/
           LENDINGFRONT_PATH: ${{ github.workspace }}
           PYTHONPATH: ${{ github.workspace }}/
         run: |
