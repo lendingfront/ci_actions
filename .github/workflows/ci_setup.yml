@@ -19,6 +19,9 @@ on:
       git_script:
         required: true
         type: string
+      git_script_branch:
+        required: true
+        type: string
       process_script:
         required: true
         type: string
@@ -52,7 +55,7 @@ jobs:
           architecture: "x64"
       - name: Search all files
         run: |
-          bash ${{ inputs.git_script }} -b main
+          bash ${{ inputs.git_script }} -b ${{ inputs.git_script_branch }}
           cat out.txt
       - id: py-files
         name: Search Python files
