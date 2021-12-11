@@ -25,6 +25,8 @@ on:
       process_script:
         required: true
         type: string
+    outputs:
+      py-files: ${{ steps.py-files.outputs.files }}
     secrets:
       access_token:
         required: true
@@ -34,8 +36,6 @@ jobs:
     name: CI Setup
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
-    outputs:
-      py-files: ${{ steps.py-files.outputs.files }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
