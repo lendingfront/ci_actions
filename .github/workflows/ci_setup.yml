@@ -29,6 +29,9 @@ on:
       py-files:
         description: "Python files"
         value: ${{ jobs.ci-setup.outputs.py-files }}
+      js-files:
+        description: "Javascript files"
+        value: ${{ jobs.ci-setup.outputs.js-files }}
     secrets:
       access_token:
         required: true
@@ -40,6 +43,7 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
     outputs:
       py-files: ${{ steps.py-files.outputs.files }}
+      js-files: ${{ steps.js-files.outputs.files }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
@@ -65,5 +69,11 @@ jobs:
         name: Search Python files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py")
+          echo ::set-output name=files::$FILES
+          echo $FILES
+      - id: js-files
+        name: Search Javascript files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".js")
           echo ::set-output name=files::$FILES
           echo $FILES
