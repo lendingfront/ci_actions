@@ -16,6 +16,10 @@ on:
       ci_repository_path:
         required: true
         type: string
+      target_path:
+        required: false
+        type: string
+        default: "."
       report_script:
         required: true
         type: string
@@ -46,7 +50,7 @@ jobs:
         uses: psf/black@stable
         with:
           options: "--diff --check"
-          src: "."
+          src: ${{ inputs.target_path }}
           version: "21.7b0"
       - name: Generate report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

@@ -1,0 +1,61 @@
+name: CI Setup
+
+on:
+  workflow_call:
+    inputs:
+      timeout_minutes:
+        required: false
+        type: number
+        default: 2
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
+      git_script:
+        required: true
+        type: string
+      process_script:
+        required: true
+        type: string
+    secrets:
+      access_token:
+        required: true
+
+jobs:
+  ci-setup:
+    name: CI Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    outputs:
+      py-files: ${{ steps.py-files.outputs.files }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Clone CI repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
+          token: ${{ secrets.access_token }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.6"
+          architecture: "x64"
+      - name: Search all files
+        run: |
+          bash ${{ inputs.git_script }} -b main
+          cat out.txt
+      - id: py-files
+        name: Search Python files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".py")
+          echo ::set-output name=files::$FILES
