@@ -62,3 +62,4 @@ jobs:
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py")
           echo ::set-output name=files::$FILES
+          echo $FILES
