@@ -28,7 +28,7 @@ on:
     outputs:
       py-files:
         description: "Python files"
-        value: ${{ steps.py-files.outputs.files }}
+        value: ${{ jobs.ci-setup.outputs.py-files }}
     secrets:
       access_token:
         required: true
@@ -38,6 +38,8 @@ jobs:
     name: CI Setup
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
+    outputs:
+      py-files: ${{ steps.py-files.outputs.files }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
