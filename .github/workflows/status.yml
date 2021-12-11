@@ -65,7 +65,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/
         run: |
           python ${{ inputs.status_script }} \
-            --token=${{ secrets.ACCESS_TOKEN }} \
+            --token=${{ secrets.access_token }} \
             --repository-path=${{ github.repository }} \
             --target-workflow="Staging Checks" \
             --ref=staging
