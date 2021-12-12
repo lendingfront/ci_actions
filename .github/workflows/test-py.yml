@@ -75,10 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.6.0
-        with:
-          access_token: ${{ secrets.access_token }}
       - name: Install OS dependencies
         run: sudo apt-get install libxml2-dev libxslt-dev
       - name: Install OS dependencies (3.6)
