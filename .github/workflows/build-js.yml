@@ -1,4 +1,4 @@
-name: JS Tests
+name: JS Build
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
       job_name:
         required: false
         type: string
-        default: Lint Core JS
+        default: JS Build
       repository:
         required: true
         type: string
@@ -36,7 +36,7 @@ on:
         required: true
 
 jobs:
-  test-js:
+  build-js:
     name: ${{ inputs.job_name }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
@@ -80,7 +80,7 @@ jobs:
           FORCE_COLOR: true
         run: |
           cd ${{ inputs.repository }}/${{ inputs.application_path }}
-          yarn test
+          yarn build
       - name: Generate report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: archive/github-actions-slack@v1.0.3

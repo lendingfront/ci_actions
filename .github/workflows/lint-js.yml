@@ -61,19 +61,28 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "14.4"
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ inputs.repository }}/${{ inputs.application_path }}/node_modules
+          key: js-node-modules-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            js-node-modules-${{ hashFiles('**/package.json') }}
       - name: Install node dependencies
         run: |
           cd ${{ inputs.repository }}/${{ inputs.application_path }}
-          npm install \
+          yarn add \
             ${{ inputs.packages }}
       - name: Show node environment
         run: |
           node --version
           npm --version
+          yarn --version
       - name: Run JS Lint
         run: |
           cd ${{ inputs.repository }}/${{ inputs.application_path }}
-          npm run lint-only
+          yarn lint-only
       - name: Generate report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: archive/github-actions-slack@v1.0.3
