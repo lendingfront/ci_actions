@@ -75,7 +75,7 @@ jobs:
           node --version
           npm --version
           yarn --version
-      - name: Run JS Tests
+      - name: Run JS Build
         env:
           FORCE_COLOR: true
         run: |
