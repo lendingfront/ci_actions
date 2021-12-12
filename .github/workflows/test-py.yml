@@ -46,6 +46,10 @@ on:
       search_tests_command:
         required: true
         type: string
+      documents_folder:
+        required: false
+        type: boolean
+        default: false
       unit_tests_command:
         required: true
         type: string
@@ -132,6 +136,10 @@ jobs:
         run: |
           python --version
           python -m pip list
+      - name: Create Documents folder
+        if: ${{ inputs.documents_folder }}
+        run: |
+          mkdir /home/runner/documents
       - name: Create log
         run: |
           cd ${{ inputs.repository }}
