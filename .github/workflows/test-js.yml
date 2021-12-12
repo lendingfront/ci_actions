@@ -69,7 +69,7 @@ jobs:
       - name: Install node dependencies
         run: |
           cd ${{ inputs.repository }}/${{ inputs.application_path }}
-          yarn install .
+          yarn install --ignore-engines
       - name: Show node environment
         run: |
           node --version
