@@ -25,6 +25,22 @@ on:
       process_script:
         required: true
         type: string
+      process_py_files:
+        required: false
+        type: boolean
+        default: false
+      process_py_migrations_files:
+        required: false
+        type: boolean
+        default: false
+      process_js_core_files:
+        required: false
+        type: boolean
+        default: false
+      process_js_other_apps_files:
+        required: false
+        type: boolean
+        default: false
     outputs:
       py-files:
         description: "Python files"
@@ -49,7 +65,9 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
     outputs:
       py-files: ${{ steps.py-files.outputs.files }}
-      js-files: ${{ steps.js-files.outputs.files }}
+      py-migrations-files: ${{ steps.py-migrations-files.outputs.files }}
+      js-core-files: ${{ steps.js-core-files.outputs.files }}
+      js-other-apps-files: ${{ steps.js-other-apps-files.outputs.files }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
@@ -72,24 +90,28 @@ jobs:
           bash ${{ inputs.git_script }} -b ${{ inputs.git_script_branch }}
           cat out.txt
       - id: py-files
+        if: ${{ inputs.process_py_files }}
         name: Search Python files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py")
           echo ::set-output name=files::$FILES
           echo $FILES
       - id: py-migrations-files
+        if: ${{ inputs.process_py_migrations_files }}
         name: Search Python migrations files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions")
           echo ::set-output name=files::$FILES
           echo $FILES
       - id: js-core-files
+        if: ${{ inputs.process_js_core_files }}
         name: Search Javascript core files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src")
           echo ::set-output name=files::$FILES
           echo $FILES
       - id: js-other-apps-files
+        if: ${{ inputs.process_js_other_apps_files }}
         name: Search Javascript other apps files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client")
