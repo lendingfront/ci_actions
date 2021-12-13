@@ -29,9 +29,15 @@ on:
       py-files:
         description: "Python files"
         value: ${{ jobs.ci-setup.outputs.py-files }}
-      js-files:
-        description: "Javascript files"
-        value: ${{ jobs.ci-setup.outputs.js-files }}
+      py-migrations-files:
+        description: "Python migrations files"
+        value: ${{ jobs.ci-setup.outputs.py-migrations-files }}
+      js-core-files:
+        description: "Javascript core files"
+        value: ${{ jobs.ci-setup.outputs.js-core-files }}
+      js-other-apps-files:
+        description: "Javascript other apps files"
+        value: ${{ jobs.ci-setup.outputs.js-other-apps-files }}
     secrets:
       access_token:
         required: true
@@ -71,9 +77,21 @@ jobs:
           FILES=$(python ${{ inputs.process_script }} --extension=".py")
           echo ::set-output name=files::$FILES
           echo $FILES
-      - id: js-files
-        name: Search Javascript files
+      - id: py-migrations-files
+        name: Search Python migrations files
         run: |
-          FILES=$(python ${{ inputs.process_script }} --extension=".js")
+          FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions")
+          echo ::set-output name=files::$FILES
+          echo $FILES
+      - id: js-core-files
+        name: Search Javascript core files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src")
+          echo ::set-output name=files::$FILES
+          echo $FILES
+      - id: js-other-apps-files
+        name: Search Javascript other apps files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client")
           echo ::set-output name=files::$FILES
           echo $FILES
