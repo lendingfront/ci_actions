@@ -28,10 +28,10 @@ on:
       report_script:
         required: true
         type: string
-      skip_job:
+      execution:
         required: false
         type: boolean
-        default: false
+        default: true
     secrets:
       access_token:
         required: true
@@ -41,12 +41,10 @@ on:
 jobs:
   migrations:
     name: Migration Checker
+    if: ${{ inputs.execution }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
-      - name: Skip job
-        if: ${{ inputs.skip_job }}
-        run: exit 0
       - name: Checkout branch
         uses: actions/checkout@v2
         with:
