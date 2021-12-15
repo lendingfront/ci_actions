@@ -63,6 +63,10 @@ on:
         required: true
         type: string
         default: requirements.txt
+      skip_job:
+        required: false
+        type: boolean
+        default: false
     secrets:
       access_token:
         required: true
@@ -75,6 +79,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
+      - name: Skip job
+        if: ${{ inputs.skip_job }}
+        run: exit(0)
       - name: Install OS dependencies
         run: sudo apt-get install libxml2-dev libxslt-dev
       - name: Install OS dependencies (3.6)

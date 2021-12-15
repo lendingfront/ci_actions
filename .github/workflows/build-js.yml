@@ -29,6 +29,10 @@ on:
       report_script:
         required: true
         type: string
+      skip_job:
+        required: false
+        type: boolean
+        default: false
     secrets:
       access_token:
         required: true
@@ -41,6 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
+      - name: Skip job
+        if: ${{ inputs.skip_job }}
+        run: exit(0)
       - name: Checkout branch
         uses: actions/checkout@v2
         with:
