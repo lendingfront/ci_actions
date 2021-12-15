@@ -81,7 +81,7 @@ jobs:
     steps:
       - name: Skip job
         if: ${{ inputs.skip_job }}
-        run: exit(0)
+        run: exit 0
       - name: Install OS dependencies
         run: sudo apt-get install libxml2-dev libxslt-dev
       - name: Install OS dependencies (3.6)
