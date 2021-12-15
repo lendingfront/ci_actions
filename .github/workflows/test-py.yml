@@ -75,7 +75,7 @@ on:
 
 jobs:
   test-py:
-    name: Python Tests (${{ inputs.python_version }})
+    name: Python Tests
     if: ${{ inputs.execution }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
