@@ -41,6 +41,10 @@ on:
         required: false
         type: boolean
         default: false
+      process_yaml_files:
+        required: false
+        type: boolean
+        default: false
     outputs:
       py-files:
         description: "Python files"
@@ -54,6 +58,9 @@ on:
       js-other-apps-files:
         description: "Javascript other apps files"
         value: ${{ jobs.ci-setup.outputs.js-other-apps-files }}
+      yaml-files:
+        description: "Yaml files"
+        value: ${{ jobs.ci-setup.outputs.yaml-files }}
     secrets:
       access_token:
         required: true
@@ -68,6 +75,7 @@ jobs:
       py-migrations-files: ${{ steps.py-migrations-files.outputs.files }}
       js-core-files: ${{ steps.js-core-files.outputs.files }}
       js-other-apps-files: ${{ steps.js-other-apps-files.outputs.files }}
+      yaml-files: ${{ steps.yaml-files.outputs.files }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
@@ -100,20 +108,27 @@ jobs:
         if: ${{ inputs.process_py_migrations_files }}
         name: Search Python migrations files
         run: |
-          FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions")
+          FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions/")
           echo ::set-output name=files::$FILES
           echo $FILES
       - id: js-core-files
         if: ${{ inputs.process_js_core_files }}
         name: Search Javascript core files
         run: |
-          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src")
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/")
           echo ::set-output name=files::$FILES
           echo $FILES
       - id: js-other-apps-files
         if: ${{ inputs.process_js_other_apps_files }}
         name: Search Javascript other apps files
         run: |
-          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client")
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/")
+          echo ::set-output name=files::$FILES
+          echo $FILES
+      - id: yaml-files
+        if: ${{ inputs.process_yaml_files }}
+        name: Search Yaml files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".yaml,.yml,.yamllint")
           echo ::set-output name=files::$FILES
           echo $FILES
