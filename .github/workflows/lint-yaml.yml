@@ -7,6 +7,22 @@ on:
         required: false
         type: number
         default: 5
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
+      target_path:
+        required: false
+        type: string
+        default: "."
+      report_script:
+        required: true
+        type: string
     secrets:
       access_token:
         required: true
@@ -28,7 +44,7 @@ jobs:
         run: pip install yamllint
       - name: Lint YAML files
         run: |
-          yamllint -c .yamllint/yaml-default-config.yaml .
+          yamllint -c .yamllint/yaml-default-config.yaml ${{ inputs.target_path }}
       - name: Generate report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: archive/github-actions-slack@v1.0.3
@@ -38,13 +54,13 @@ jobs:
           slack-text: ":red_circle: `${{github.repository}}` - `${{github.job}}` \n
             *run_id:* `${{github.run_id}}` *run_number:* `${{github.run_number}}` \n
             *author:* `${{github.actor}}`"
-      - name: Clone general repository
-        if: failure()
+      - name: Clone CI repository
+        if: failure() && inputs.ci_repository
         uses: actions/checkout@v2
         with:
-          repository: lendingfront/general
-          ref: staging
-          path: general
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
           token: ${{ secrets.access_token }}
       - name: Stop on failure
         if: failure()
@@ -53,7 +69,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/
         run: |
           pip install requests
-          python general/scripts/cancel_ci_jobs.py \
+          python ${{ inputs.report_script }} \
             --token=${{ secrets.access_token }} \
             --repository-path=${{ github.repository }} \
             --run-id=${{ github.run_id }}
