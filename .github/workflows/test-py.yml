@@ -179,7 +179,6 @@ jobs:
           cd ${{ inputs.repository }}
           ${{ inputs.unit_tests_command }}
       - name: Clone badges repository
-        if: ${{ github.event_name == 'push' && inputs.python_version == '2.7' && inputs.coverage_script_path }}
         uses: actions/checkout@v2
         with:
           repository: ${{ inputs.badges_repository }}
@@ -187,10 +186,8 @@ jobs:
           path: ${{ inputs.badges_repository_path }}
           token: ${{ secrets.access_token }}
       - name: Execute coverage
-        if: ${{ github.event_name == 'push' && inputs.python_version == '2.7' }}
         run: bash -ec 'if [ -f .coverage ]; then coverage-badge -o ${{ inputs.coverage_badge }}; fi'
       - name: Update coverage
-        if: ${{ github.event_name == 'push' && inputs.python_version == '2.7' && inputs.coverage_script_path }}
         run: bash ./${{ inputs.coverage_script_path }} ${{ inputs.repository }} cp-coverage
       - name: Generate report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
