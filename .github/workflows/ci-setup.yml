@@ -78,20 +78,20 @@ jobs:
       yaml-files: ${{ steps.yaml-files.outputs.files }}
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Clone CI repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}
           path: ${{ inputs.ci_repository_path }}
           token: ${{ secrets.access_token }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.6"
+          python-version: "3.9"
           architecture: "x64"
       - name: Search all files
         run: |
@@ -102,33 +102,33 @@ jobs:
         name: Search Python files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py")
-          echo ::set-output name=files::$FILES
+          echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
       - id: py-migrations-files
         if: ${{ inputs.process_py_migrations_files }}
         name: Search Python migrations files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions/")
-          echo ::set-output name=files::$FILES
+          echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
       - id: js-core-files
         if: ${{ inputs.process_js_core_files }}
         name: Search Javascript core files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/")
-          echo ::set-output name=files::$FILES
+          echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
       - id: js-other-apps-files
         if: ${{ inputs.process_js_other_apps_files }}
         name: Search Javascript other apps files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/")
-          echo ::set-output name=files::$FILES
+          echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
       - id: yaml-files
         if: ${{ inputs.process_yaml_files }}
         name: Search Yaml files
         run: |
           FILES=$(python ${{ inputs.process_script }} --extension=".yaml,.yml,.yamllint")
-          echo ::set-output name=files::$FILES
+          echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
