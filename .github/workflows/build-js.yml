@@ -43,20 +43,20 @@ jobs:
   build-js:
     name: ${{ inputs.job_name }}
     if: ${{ inputs.execution }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ inputs.repository }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "2.7"
           architecture: "x64"
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "14.4"
       - name: Cache node_modules
@@ -93,7 +93,7 @@ jobs:
             *author:* `${{github.actor}}`"
       - name: Clone CI repository
         if: failure() && inputs.ci_repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}

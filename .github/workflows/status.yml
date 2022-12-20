@@ -31,22 +31,22 @@ on:
 jobs:
   status-checker:
     name: Status Checker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ inputs.repository }}
       - name: Clone CI repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}
           path: ${{ inputs.ci_repository_path }}
           token: ${{ secrets.access_token }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.6"
           architecture: "x64"

@@ -32,12 +32,12 @@ on:
 jobs:
   lint-yaml:
     name: Lint Yaml
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.6
       - name: Install yamllint
@@ -56,7 +56,7 @@ jobs:
             *author:* `${{github.actor}}`"
       - name: Clone CI repository
         if: failure() && inputs.ci_repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}

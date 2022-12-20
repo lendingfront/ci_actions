@@ -53,7 +53,7 @@ jobs:
   lint-py:
     if: ${{ false }}
     name: Lint Python
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Install OS dependencies
@@ -61,11 +61,11 @@ jobs:
           sudo apt-get install libxml2-dev libxslt-dev
           sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
       - name: Checkout branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: ${{ inputs.repository }}
       - name: Clone CI repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}
@@ -75,7 +75,7 @@ jobs:
         run: |
           bash ./${{ inputs.clone_repository_script }} ${{ inputs.repositories }} ${{ inputs.repositories_default_branch }} ${{ secrets.access_token }}
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "2.7"
           architecture: "x64"
