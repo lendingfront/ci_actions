@@ -110,7 +110,7 @@ jobs:
         run: ${{ inputs.search_tests_command }}
       - name: Cache pip 2.7
         if: ${{ inputs.python_version == '2.7' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -120,7 +120,7 @@ jobs:
             py-${{ inputs.python_version }}-pip-${{ hashFiles('**/requirements.txt') }}
       - name: Cache pip 3.6
         if: ${{ inputs.python_version == '3.6' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
