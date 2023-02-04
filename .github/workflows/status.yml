@@ -74,8 +74,7 @@ jobs:
           slack-function: send-message
           slack-channel: "#ci-status"
           slack-text: ":large_yellow_circle: `${{github.repository}}` - `${{github.job}}`\n
-            :link: URL: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run_id: ${{github.run_id}} - run_number: ${{github.run_number}}>\n
-            :bust_in_silhouette: Author: `${{github.actor}}`"
+            :link: URL: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run_id: ${{github.run_id}} - run_number: ${{github.run_number}}>"
       - name: Send Slack reaction to report
         if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: archive/github-actions-slack@v2.6.0
