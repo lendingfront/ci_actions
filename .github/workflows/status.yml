@@ -65,11 +65,23 @@ jobs:
             --repository-path=${{ github.repository }} \
             --target-workflow="Staging Checks" \
             --ref=staging
-      - name: Generate report
-        if: failure() || cancelled()
-        uses: archive/github-actions-slack@v1.0.3
+      - name: Generate report message
+        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: archive/github-actions-slack@v2.6.0
+        id: send-message
         with:
-          slack-bot-user-oauth-access-token: ${{ secrets.slack_bot_token }}
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-function: send-message
           slack-channel: "#ci-status"
-          slack-text: ":large_yellow_circle: `${{github.repository}}` - `${{github.job}}` \n
-            *run_id:* `${{github.run_id}}` *run_number:* `${{github.run_number}}`"
+          slack-text: ":large_yellow_circle: `${{github.repository}}` - `${{github.job}}`\n
+            :link: URL: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run_id: ${{github.run_id}} - run_number: ${{github.run_number}}>\n
+            :bust_in_silhouette: Author: `${{github.actor}}`"
+      - name: Send Slack reaction to report
+        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: archive/github-actions-slack@v2.6.0
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-function: send-reaction
+          slack-channel: ${{ fromJson(steps.send-message.outputs.slack-result).response.channel }}
+          slack-emoji-name: warning
+          slack-message-timestamp: ${{ fromJson(steps.send-message.outputs.slack-result).response.message.ts }}
