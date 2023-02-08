@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/stale@v7
         with:
-          operations-per-run: 50
+          operations-per-run: 500
           stale-issue-message: >
             This Issue has been automatically marked as stale because it has not had
             recent activity. It will be closed if no further activity occurs.
