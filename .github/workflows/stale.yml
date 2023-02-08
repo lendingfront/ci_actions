@@ -1,5 +1,7 @@
 name: Run Stale Bot
 
+on:
+  workflow_call:
 permissions:
   contents: read
 
