@@ -45,6 +45,22 @@ on:
         required: false
         type: boolean
         default: false
+      requirements_js_core:
+        required: false
+        type: boolean
+        default: false
+      requirements_js_other_apps:
+        required: false
+        type: boolean
+        default: false
+      requirements_py_27:
+        required: false
+        type: boolean
+        default: false
+      requirements_py_36:
+        required: false
+        type: boolean
+        default: false
     outputs:
       py-files:
         description: "Python files"
@@ -61,6 +77,19 @@ on:
       yaml-files:
         description: "Yaml files"
         value: ${{ jobs.ci-setup.outputs.yaml-files }}
+      requirements_js_core:
+        description: "Javascript core requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-js-core }}
+      requirements_js_other_apps:
+        description: "Javascript other apps requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-js-other-apps }}
+      requirements_py_27:
+        description: "Python requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-py-27 }}
+      requirements_py_36:
+        description: "Python requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-py-36 }}
+
     secrets:
       access_token:
         required: true
@@ -76,6 +105,10 @@ jobs:
       js-core-files: ${{ steps.js-core-files.outputs.files }}
       js-other-apps-files: ${{ steps.js-other-apps-files.outputs.files }}
       yaml-files: ${{ steps.yaml-files.outputs.files }}
+      requirements-js-core: ${{ steps.requirements-js-core.outputs.hash }}
+      requirements-js-other-apps: ${{ steps.requirements-js-other-apps.outputs.hash }}
+      requirements-py-27: ${{ steps.requirements-py-27.outputs.hash }}
+      requirements-py-36: ${{ steps.requirements-py-36.outputs.hash }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -132,3 +165,31 @@ jobs:
           FILES=$(python ${{ inputs.process_script }} --extension=".yaml,.yml,.yamllint")
           echo "files=$FILES" >> $GITHUB_OUTPUT
           echo $FILES
+      - id: requirements-js-core
+        if: ${{ inputs.requirements_js_core }}
+        name: Search Javascript core requirements
+        run: |
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/" --requirements)
+          echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
+          echo $HASH_FILE
+      - id: requirements-js-other-apps
+        if: ${{ inputs.requirements_js_other_apps }}
+        name: Search Javascript other apps requirements
+        run: |
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/" --requirements)
+          echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
+          echo $HASH_FILE
+      - id: requirements-py-27
+        if: ${{ inputs.requirements_py_27 }}
+        name: Search Python requirements
+        run: |
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements.txt")
+          echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
+          echo $HASH_FILE
+      - id: requirements-py-36
+        if: ${{ inputs.requirements_py_36 }}
+        name: Search Python requirements
+        run: |
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements_py36.txt")
+          echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
+          echo $HASH_FILE
