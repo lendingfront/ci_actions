@@ -183,13 +183,13 @@ jobs:
         if: ${{ inputs.requirements_py_27 }}
         name: Search Python requirements
         run: |
-          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements.txt")
+          FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements.txt")
           echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
           echo $FILE
       - id: requirements-py-36
         if: ${{ inputs.requirements_py_36 }}
         name: Search Python requirements
         run: |
-          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements_py36.txt")
+          FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements_py36.txt")
           echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
           echo $FILE
