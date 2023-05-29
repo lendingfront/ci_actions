@@ -169,14 +169,14 @@ jobs:
         if: ${{ inputs.requirements_js_core }}
         name: Search Javascript core requirements
         run: |
-          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/" --requirements)
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/" --requirements_filename="package.json")
           echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
           echo $HASH_FILE
       - id: requirements-js-other-apps
         if: ${{ inputs.requirements_js_other_apps }}
         name: Search Javascript other apps requirements
         run: |
-          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/" --requirements)
+          HASH_FILE=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/" --requirements_filename="package.json")
           echo "hash=$HASH_FILE" >> $GITHUB_OUTPUT
           echo $HASH_FILE
       - id: requirements-py-27
