@@ -25,6 +25,10 @@ on:
       process_script:
         required: true
         type: string
+      process_html_files:
+        required: false
+        type: boolean
+        default: false
       process_py_files:
         required: false
         type: boolean
@@ -62,6 +66,9 @@ on:
         type: boolean
         default: false
     outputs:
+      html-files:
+        description: "HTML files"
+        value: ${{ jobs.ci-setup.outputs.html-files }}
       py-files:
         description: "Python files"
         value: ${{ jobs.ci-setup.outputs.py-files }}
@@ -100,6 +107,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     outputs:
+      html-files: ${{ steps.html-files.outputs.files }}
       py-files: ${{ steps.py-files.outputs.files }}
       py-migrations-files: ${{ steps.py-migrations-files.outputs.files }}
       js-core-files: ${{ steps.js-core-files.outputs.files }}
@@ -130,6 +138,13 @@ jobs:
         run: |
           bash ${{ inputs.git_script }} -b ${{ inputs.git_script_branch }}
           cat out.txt
+      - id: html-files
+        if: ${{ inputs.process_html_files }}
+        name: Search HTML files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".html")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
       - id: py-files
         if: ${{ inputs.process_py_files }}
         name: Search Python files
