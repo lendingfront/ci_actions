@@ -1,0 +1,84 @@
+name: Linter Python Modules
+
+on:
+  workflow_call:
+    inputs:
+      timeout_minutes:
+        required: false
+        type: number
+        default: 2
+      base_path:
+        required: true
+        type: string
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
+      files:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+      base_branch:
+        required: true
+        type: string
+      current_branch:
+        required: true
+        type: string
+      local_modules:
+        required: true
+        type: string
+      process_script:
+        required: true
+        type: string
+
+    secrets:
+      access_token:
+        required: true
+
+jobs:
+  linter-py-modules:
+    name: Linter Python Modules
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    steps:
+      - name: Clone CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
+          token: ${{ secrets.access_token }}
+      - name: Checkout base branch
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.base_branch }}
+          path: ${{ inputs.base_branch }}
+          token: ${{ secrets.access_token }}
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.current_branch }}
+          path: ${{ inputs.current_branch }}
+          token: ${{ secrets.access_token }}
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          architecture: "x64"
+      - name: Lint Python Modules
+        run: |
+          python3 ${{ inputs.base_path }}${{inputs.process_script}} \
+            --base_branch="${{ inputs.base_branch }}" \
+            --current_branch="${{ inputs.current_branch }}" \
+            --files="${{ inputs.files }}" \
+            --local_modules=${{ inputs.local_modules }}
+            --token=${{ secrets.access_token }}
