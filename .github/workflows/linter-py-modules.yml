@@ -100,10 +100,9 @@ jobs:
           python -m pip list
       - name: Lint Python Modules
         env:
-          LENDINGFRONT_PATH: ${{ inputs.base_path }}
-          PYTHONPATH: ${{ inputs.base_path }}/
+          LENDINGFRONT_PATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/
         run: |
-          cat ${{inputs.process_script}}
           python3 ${{ inputs.base_path }}${{inputs.process_script}} \
             --base_branch="${{ inputs.base_branch }}" \
             --base_pathname="${{ inputs.base_path }}${{ inputs.base_pathname }}" \
