@@ -82,9 +82,7 @@ jobs:
           architecture: "x64"
       - name: Lint Python Modules
         run: |
-          echo ${{ inputs.base_path }}${{ inputs.current_pathname }}
-          ls ${{ inputs.base_path }}${{ inputs.current_pathname }}
-          ls
+          cat ${{inputs.process_script}}
           python3 ${{ inputs.base_path }}${{inputs.process_script}} \
             --base_branch="${{ inputs.base_branch }}" \
             --base_pathname="${{ inputs.base_path }}${{ inputs.base_pathname }}" \
