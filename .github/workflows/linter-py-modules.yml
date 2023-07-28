@@ -99,6 +99,9 @@ jobs:
           python --version
           python -m pip list
       - name: Lint Python Modules
+        env:
+          LENDINGFRONT_PATH: ${{ inputs.base_path }}
+          PYTHONPATH: ${{ inputs.base_path }}/
         run: |
           cat ${{inputs.process_script}}
           python3 ${{ inputs.base_path }}${{inputs.process_script}} \
