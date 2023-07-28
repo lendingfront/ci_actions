@@ -28,7 +28,13 @@ on:
       base_branch:
         required: true
         type: string
+      base_pathname:
+        required: true
+        type: string
       current_branch:
+        required: true
+        type: string
+      current_pathname:
         required: true
         type: string
       local_modules:
@@ -60,14 +66,14 @@ jobs:
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.base_branch }}
-          path: ${{ inputs.base_branch }}
+          path: ${{ inputs.base_pathname }}
           token: ${{ secrets.access_token }}
       - name: Checkout current branch
         uses: actions/checkout@v3
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.current_branch }}
-          path: ${{ inputs.current_branch }}
+          path: ${{ inputs.current_pathname }}
           token: ${{ secrets.access_token }}
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -76,9 +82,14 @@ jobs:
           architecture: "x64"
       - name: Lint Python Modules
         run: |
+          echo ${{ inputs.base_path }}${{ inputs.current_pathname }}
+          ls ${{ inputs.base_path }}${{ inputs.current_pathname }}
+          ls
           python3 ${{ inputs.base_path }}${{inputs.process_script}} \
             --base_branch="${{ inputs.base_branch }}" \
+            --base_pathname="${{ inputs.base_path }}${{ inputs.base_pathname }}" \
             --current_branch="${{ inputs.current_branch }}" \
+            --current_pathname="${{ inputs.base_path }}${{ inputs.current_pathname }}" \
             --files="${{ inputs.files }}" \
             --local_modules=${{ inputs.local_modules }} \
             --token=${{ secrets.access_token }}
