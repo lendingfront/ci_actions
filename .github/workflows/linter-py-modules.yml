@@ -80,5 +80,5 @@ jobs:
             --base_branch="${{ inputs.base_branch }}" \
             --current_branch="${{ inputs.current_branch }}" \
             --files="${{ inputs.files }}" \
-            --local_modules=${{ inputs.local_modules }}
+            --local_modules=${{ inputs.local_modules }} \
             --token=${{ secrets.access_token }}
