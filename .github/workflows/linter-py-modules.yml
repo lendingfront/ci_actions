@@ -43,6 +43,9 @@ on:
       process_script:
         required: true
         type: string
+      requirements_file:
+        required: true
+        type: string
 
     secrets:
       access_token:
@@ -80,6 +83,21 @@ jobs:
         with:
           python-version: "3.11"
           architecture: "x64"
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: lint-py-modules
+          restore-keys: lint-py-modules
+      - name: Install python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -U pip wheel
+          pip3 install -r ${{ inputs.requirements_file }}
+      - name: Show python environment
+        run: |
+          python --version
+          python -m pip list
       - name: Lint Python Modules
         run: |
           cat ${{inputs.process_script}}
