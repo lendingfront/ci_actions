@@ -99,6 +99,7 @@ jobs:
           python --version
           python -m pip list
       - name: Lint Python Modules
+        if: ${{ needs.ci-setup.outputs.py-files != '' }}
         env:
           LENDINGFRONT_PATH: ${{ github.workspace }}
           PYTHONPATH: ${{ github.workspace }}/
