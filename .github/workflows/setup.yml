@@ -1,0 +1,218 @@
+name: CI Setup
+
+on:
+  workflow_call:
+    inputs:
+      timeout_minutes:
+        required: false
+        type: number
+        default: 2
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
+      git_script:
+        required: true
+        type: string
+      git_script_branch:
+        required: true
+        type: string
+      process_script:
+        required: true
+        type: string
+      process_html_files:
+        required: false
+        type: boolean
+        default: false
+      process_py_files:
+        required: false
+        type: boolean
+        default: false
+      process_py_migrations_files:
+        required: false
+        type: boolean
+        default: false
+      process_js_core_files:
+        required: false
+        type: boolean
+        default: false
+      process_js_other_apps_files:
+        required: false
+        type: boolean
+        default: false
+      process_yaml_files:
+        required: false
+        type: boolean
+        default: false
+      requirements_js_core:
+        required: false
+        type: boolean
+        default: false
+      requirements_js_other_apps:
+        required: false
+        type: boolean
+        default: false
+      requirements_py_27:
+        required: false
+        type: boolean
+        default: false
+      requirements_py_36:
+        required: false
+        type: boolean
+        default: false
+
+    outputs:
+      html-files:
+        description: "HTML files"
+        value: ${{ jobs.ci-setup.outputs.html-files }}
+      py-files:
+        description: "Python files"
+        value: ${{ jobs.ci-setup.outputs.py-files }}
+      py-migrations-files:
+        description: "Python migrations files"
+        value: ${{ jobs.ci-setup.outputs.py-migrations-files }}
+      js-core-files:
+        description: "Javascript core files"
+        value: ${{ jobs.ci-setup.outputs.js-core-files }}
+      js-other-apps-files:
+        description: "Javascript other apps files"
+        value: ${{ jobs.ci-setup.outputs.js-other-apps-files }}
+      yaml-files:
+        description: "Yaml files"
+        value: ${{ jobs.ci-setup.outputs.yaml-files }}
+      requirements_js_core:
+        description: "Javascript core requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-js-core }}
+      requirements_js_other_apps:
+        description: "Javascript other apps requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-js-other-apps }}
+      requirements_py_27:
+        description: "Python requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-py-27 }}
+      requirements_py_36:
+        description: "Python requirements"
+        value: ${{ jobs.ci-setup.outputs.requirements-py-36 }}
+
+    secrets:
+      app_id: ${{ secrets.app_id }}
+      app_private_key: ${{ secrets.private_key }}
+
+
+jobs:
+  ci-setup:
+    name: CI Setup
+    runs-on: ubuntu-20.04
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    outputs:
+      html-files: ${{ steps.html-files.outputs.files }}
+      py-files: ${{ steps.py-files.outputs.files }}
+      py-migrations-files: ${{ steps.py-migrations-files.outputs.files }}
+      js-core-files: ${{ steps.js-core-files.outputs.files }}
+      js-other-apps-files: ${{ steps.js-other-apps-files.outputs.files }}
+      yaml-files: ${{ steps.yaml-files.outputs.files }}
+      requirements-js-core: ${{ steps.requirements-js-core.outputs.requirements_file }}
+      requirements-js-other-apps: ${{ steps.requirements-js-other-apps.outputs.requirements_file }}
+      requirements-py-27: ${{ steps.requirements-py-27.outputs.requirements_file }}
+      requirements-py-36: ${{ steps.requirements-py-36.outputs.requirements_file }}
+    steps:
+      - name: Generate access token
+        id: generate_access_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app_id: ${{ secrets.app_id }}
+          private_key: ${{ secrets.app_private_key }}
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Clone CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
+          token: ${{ steps.generate_access_token.outputs.token }}
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+      - name: Search all files
+        run: |
+          bash ${{ inputs.git_script }} -b ${{ inputs.git_script_branch }}
+          cat out.txt
+      - id: html-files
+        if: ${{ inputs.process_html_files }}
+        name: Search HTML files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".html")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: py-files
+        if: ${{ inputs.process_py_files }}
+        name: Search Python files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".py")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: py-migrations-files
+        if: ${{ inputs.process_py_migrations_files }}
+        name: Search Python migrations files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".py" --target-path="migrations/versions/")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: js-core-files
+        if: ${{ inputs.process_js_core_files }}
+        name: Search Javascript core files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/src/")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: js-other-apps-files
+        if: ${{ inputs.process_js_other_apps_files }}
+        name: Search Javascript other apps files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".js" --target-path="app/client/")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: yaml-files
+        if: ${{ inputs.process_yaml_files }}
+        name: Search Yaml files
+        run: |
+          FILES=$(python ${{ inputs.process_script }} --extension=".yaml,.yml,.yamllint")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo $FILES
+      - id: requirements-js-core
+        if: ${{ inputs.requirements_js_core }}
+        name: Search Javascript core requirements
+        run: |
+          FILE=$(python ${{ inputs.process_script }} --extension=".json" --target-path="app/src/" --requirements_filename="package.json")
+          echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
+          echo $FILE
+      - id: requirements-js-other-apps
+        if: ${{ inputs.requirements_js_other_apps }}
+        name: Search Javascript other apps requirements
+        run: |
+          FILE=$(python ${{ inputs.process_script }} --extension=".json" --target-path="app/client/" --requirements_filename="package.json")
+          echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
+          echo $FILE
+      - id: requirements-py-27
+        if: ${{ inputs.requirements_py_27 }}
+        name: Search Python requirements 2.7
+        run: |
+          FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements.txt")
+          echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
+          echo $FILE
+      - id: requirements-py-36
+        if: ${{ inputs.requirements_py_36 }}
+        name: Search Python requirements 3.6
+        run: |
+          FILE=$(python ${{ inputs.process_script }} --extension=".txt" --requirements_filename="requirements_py36.txt")
+          echo "requirements_file=$FILE" >> $GITHUB_OUTPUT
+          echo $FILE
