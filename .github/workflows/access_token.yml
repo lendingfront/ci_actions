@@ -38,4 +38,4 @@ jobs:
         id: store_token
         run: |
           ACCESS_TOKEN=${{ steps.generate_token.outputs.token }}
-          echo "access_token=ACCESS_TOKEN" >> $GITHUB_OUTPUT
+          echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
