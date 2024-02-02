@@ -1,0 +1,42 @@
+name: CI Setup
+
+on:
+  workflow_call:
+    inputs:
+      app_id:
+        required: true
+        type: string
+      private_key:
+        required: true
+        type: string
+      timeout_minutes:
+        required: false
+        type: number
+        default: 2
+    outputs:
+      access_token:
+        description: "Access token"
+        value: ${{ jobs.ci-setup.outputs.access_token }}
+
+jobs:
+  auth:
+    name: Generate Access Token
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    outputs:
+      html-files: ${{ steps.html-files.outputs.files }}
+      access_token: ${{ steps.store_token.outputs.access_token }}
+    steps:
+      - name: Generate a token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.LF_APP_ID }}
+          private-key: ${{ secrets.LF_APP_PRIVATE_KEY }}
+      - name: Store token
+      - id: store_token
+        if: ${{ inputs.process_html_files }}
+        name: Search HTML files
+        run: |
+          ACCESS_TOKEN=${{ steps.generate_token.outputs.token }}
+          echo "access_token=ACCESS_TOKEN" >> $GITHUB_OUTPUT
