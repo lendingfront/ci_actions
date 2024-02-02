@@ -99,8 +99,10 @@ on:
         value: ${{ jobs.ci-setup.outputs.requirements-py-36 }}
 
     secrets:
-      app_id: ${{ secrets.app_id }}
-      app_private_key: ${{ secrets.private_key }}
+      app_id:
+        required: true
+      app_private_key:
+        required: true
 
 
 jobs:
