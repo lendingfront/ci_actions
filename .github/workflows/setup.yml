@@ -102,9 +102,9 @@ on:
         value: ${{ jobs.ci-setup.outputs.requirements-py-36 }}
 
     secrets:
-      app-id:
+      app_id:
         required: true
-      app-private_key:
+      app_private_key:
         required: true
 
 
@@ -129,8 +129,8 @@ jobs:
         id: generate_access_token
         uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ secrets.app_id }}
-          private_key: ${{ secrets.app_private_key }}
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
           owner: ${{  inputs.repository_owner }}
       - name: Checkout branch
         uses: actions/checkout@v3
