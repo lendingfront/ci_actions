@@ -1,0 +1,135 @@
+name: Linter Python Modules
+
+on:
+  workflow_call:
+    inputs:
+      timeout_minutes:
+        required: false
+        type: number
+        default: 2
+      repository_owner:
+        required: true
+        type: string
+      base_path:
+        required: true
+        type: string
+      ci_repository:
+        required: true
+        type: string
+      ci_repository_name:
+        required: true
+        type: string
+      ci_repository_branch:
+        required: true
+        type: string
+      ci_repository_path:
+        required: true
+        type: string
+      files:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+      base_branch:
+        required: true
+        type: string
+      base_pathname:
+        required: true
+        type: string
+      current_branch:
+        required: true
+        type: string
+      current_pathname:
+        required: true
+        type: string
+      local_modules:
+        required: true
+        type: string
+      process_script:
+        required: true
+        type: string
+      requirements_file:
+        required: true
+        type: string
+
+    secrets:
+      app_id:
+        required: true
+      app_private_key:
+        required: true
+
+
+jobs:
+  linter-py-modules:
+    name: Linter Python Modules
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    env:
+      FORCE_COLOR: "1"
+    steps:
+      - name: Generate access token
+        id: generate_access_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
+          owner: ${{ inputs.repository_owner }}
+      - name: Clone CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.ci_repository }}
+          ref: ${{ inputs.ci_repository_branch }}
+          path: ${{ inputs.ci_repository_path }}
+          token: ${{ steps.generate_access_token.outputs.token }}
+          persist-credentials: false
+      - name: Checkout base branch
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.base_branch }}
+          path: ${{ inputs.base_pathname }}
+          token: ${{ steps.generate_access_token.outputs.token }}
+          persist-credentials: false
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.current_branch }}
+          path: ${{ inputs.current_pathname }}
+          token: ${{ steps.generate_access_token.outputs.token }}
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          architecture: "x64"
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: lint-py-modules
+          restore-keys: lint-py-modules
+      - name: Install python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -U pip wheel
+          pip3 install -r ${{ inputs.requirements_file }}
+      - name: Show python environment
+        run: |
+          python --version
+          python -m pip list
+      - name: Lint Python Modules
+        if: ${{ inputs.files != '' }}
+        env:
+          LENDINGFRONT_PATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/
+        run: |
+          python3 ${{ inputs.base_path }}${{inputs.process_script}} \
+            --base_branch="${{ inputs.base_branch }}" \
+            --base_pathname="${{ inputs.base_path }}${{ inputs.base_pathname }}" \
+            --current_branch="${{ inputs.current_branch }}" \
+            --current_pathname="${{ inputs.base_path }}${{ inputs.current_pathname }}" \
+            --files="${{ inputs.files }}" \
+            --local_modules=${{ inputs.local_modules }} \
+            --token=${{ steps.generate_access_token.outputs.token }}
