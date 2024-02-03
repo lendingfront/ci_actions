@@ -147,6 +147,7 @@ jobs:
           ref: ${{ inputs.ci_repository_branch }}
           path: ${{ inputs.ci_repository_path }}
           token: ${{ steps.generate_access_token.outputs.token }}
+          persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
