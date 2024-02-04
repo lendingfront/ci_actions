@@ -137,7 +137,7 @@ jobs:
           owner: ${{  inputs.repository_owner }}
           repositories: ${{ inputs.ci_repository_name }}
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Clone CI repository
@@ -149,7 +149,7 @@ jobs:
           token: ${{ steps.generate_access_token.outputs.token }}
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
           architecture: "x64"

@@ -76,7 +76,7 @@ jobs:
           private-key: ${{ secrets.app_private_key }}
           owner: ${{ inputs.repository_owner }}
       - name: Clone CI repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}
@@ -84,7 +84,7 @@ jobs:
           token: ${{ steps.generate_access_token.outputs.token }}
           persist-credentials: false
       - name: Checkout base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.base_branch }}
@@ -92,7 +92,7 @@ jobs:
           token: ${{ steps.generate_access_token.outputs.token }}
           persist-credentials: false
       - name: Checkout current branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.current_branch }}
@@ -100,7 +100,7 @@ jobs:
           token: ${{ steps.generate_access_token.outputs.token }}
           persist-credentials: false
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           architecture: "x64"
