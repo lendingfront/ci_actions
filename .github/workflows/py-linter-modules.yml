@@ -105,11 +105,12 @@ jobs:
           python-version: "3.11"
           architecture: "x64"
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: lint-py-modules
           restore-keys: lint-py-modules
+          save-always: true
       - name: Install python dependencies
         run: |
           python3 -m pip install --upgrade pip
