@@ -42,7 +42,6 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Generate access token
-        if: secrets.app_id && secrets.app_private_key
         id: generate_access_token
         uses: actions/create-github-app-token@v1
         with:
