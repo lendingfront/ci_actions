@@ -27,7 +27,7 @@ on:
         type: string
     secrets:
       access_token:
-        required: true
+        required: false
       slack_bot_token:
         required: true
       app_id:
