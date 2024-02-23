@@ -19,6 +19,9 @@ on:
       ci_repository_path:
         required: true
         type: string
+      repository_owner:
+        required: false
+        type: string
       status_script:
         required: true
         type: string
@@ -27,6 +30,10 @@ on:
         required: true
       slack_bot_token:
         required: true
+      app_id:
+        required: false
+      app_private_key:
+        required: false
 
 jobs:
   status-checker:
@@ -34,6 +41,14 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
+      - name: Generate access token
+        if: secrets.app_id && secrets.app_private_key
+        id: generate_access_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
+          owner: ${{ inputs.repository_owner }}
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
@@ -44,7 +59,7 @@ jobs:
           repository: ${{ inputs.ci_repository }}
           ref: ${{ inputs.ci_repository_branch }}
           path: ${{ inputs.ci_repository_path }}
-          token: ${{ secrets.access_token }}
+          token: ${{ secrets.access_token || steps.generate_access_token.outputs.token }}
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -61,27 +76,8 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/
         run: |
           python ${{ inputs.status_script }} \
-            --token=${{ secrets.access_token }} \
+            --token=${{ secrets.access_token || steps.generate_access_token.outputs.token }} \
             --repository-path=${{ github.repository }} \
             --target-workflow="Staging Checks" \
             --ref=staging \
             --day=Thursday
-      - name: Generate report message
-        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: archive/github-actions-slack@v2.6.0
-        id: send-message
-        with:
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-function: send-message
-          slack-channel: "#ci-status"
-          slack-text: ":large_yellow_circle: `${{github.repository}}` - `${{github.job}}`\n
-            :link: URL: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|run_id: ${{github.run_id}} - run_number: ${{github.run_number}}>"
-      - name: Send Slack reaction to report
-        if: (failure() || cancelled()) && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: archive/github-actions-slack@v2.6.0
-        with:
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
-          slack-function: send-reaction
-          slack-channel: ${{ fromJson(steps.send-message.outputs.slack-result).response.channel }}
-          slack-emoji-name: warning
-          slack-message-timestamp: ${{ fromJson(steps.send-message.outputs.slack-result).response.message.ts }}
