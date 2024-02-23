@@ -42,6 +42,7 @@ jobs:
     timeout-minutes: ${{ inputs.timeout_minutes }}
     steps:
       - name: Generate access token
+        continue-on-error: true
         id: generate_access_token
         uses: actions/create-github-app-token@v1
         with:
