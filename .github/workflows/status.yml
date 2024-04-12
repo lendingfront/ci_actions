@@ -79,5 +79,5 @@ jobs:
             --token=${{ secrets.access_token || steps.generate_access_token.outputs.token }} \
             --repository-path=${{ github.repository }} \
             --target-workflow="Staging Checks" \
-            --ref=staging \
+            --ref=master \
             --day=Thursday
