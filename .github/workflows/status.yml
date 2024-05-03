@@ -28,8 +28,6 @@ on:
     secrets:
       access_token:
         required: false
-      slack_bot_token:
-        required: true
       app_id:
         required: false
       app_private_key:
