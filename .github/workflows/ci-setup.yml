@@ -104,7 +104,7 @@ on:
 jobs:
   ci-setup:
     name: CI Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: ${{ inputs.timeout_minutes }}
     outputs:
       html-files: ${{ steps.html-files.outputs.files }}
